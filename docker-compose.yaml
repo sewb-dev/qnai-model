@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  redis:
+    container_name: "qnai"
+    image: redis/redis-stack
+    ports:
+      - 6380:6379
+    volumes:
+      - ./redis:/data
