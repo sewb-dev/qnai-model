@@ -1,10 +1,15 @@
-import uuid
+import uuid, logging
 from openai import AsyncOpenAI
 from src.settings import settings
 from src.cache import get_cache
 from src.enums import GenerationStatus
 import calendar
 from datetime import datetime, timedelta
+from fastapi import HTTPException, status
+
+
+logger = logging.getLogger(__name__)
+
 
 client = None
 
@@ -70,7 +75,9 @@ class GenerationService:
             )
 
             async for part in stream:
-                print(part.choices[0].delta.content or "")
+                logger.info(
+                    f"service=generate sub_service=openai msg={part} extras='generation_id={generationId}'"
+                )
                 content += part.choices[0].delta.content or ""
                 generation_dict["content"] = content
 
@@ -79,6 +86,10 @@ class GenerationService:
                     "$",
                     generation_dict,
                 )
+                logger.info(
+                    f"service=generate message='saved response object to cache during stream handling' extra='generation_id={generationId}'"
+                )
+
             generation_dict["status"] = GenerationStatus.COMPLETE.value
             generation_dict["content"] = content
 
@@ -86,6 +97,9 @@ class GenerationService:
                 key,
                 "$",
                 generation_dict,
+            )
+            logger.info(
+                f"service=generate message='saved response object to cache after stream handling' extra='generation_id={generationId}'"
             )
 
         except Exception as e:
@@ -98,12 +112,18 @@ class GenerationService:
                 "$",
                 generation_dict,
             )
-            print(e)
+            logger.error(
+                f"service=generate, msg{e} extra='generation_id={generationId}'"
+            )
 
         finally:
             await cache.expireat(
                 key,
                 self.__get_session_expiry(settings.DELETE_GENERATION_AFTER_DAYS),
+            )
+
+            logger.info(
+                f"service=generate message='set cache expiry for generation request' extra='generation_id={generationId}'"
             )
 
     async def generation_status(self, generationId: str):
@@ -124,7 +144,9 @@ class GenerationService:
                 "content": None,
                 "error": None,
             }
-            print(e)
+            logger.error(
+                f"service=generation_status, msg='{e}' extra='generation_id={generationId}'"
+            )
             response["status"] = GenerationStatus.COMPLETE.value
             response["error"] = e
             return response
@@ -138,6 +160,15 @@ class GenerationService:
             hours = 0
         expiry_datetime = current_datetime + timedelta(days=days, hours=hours)
         return calendar.timegm(expiry_datetime.timetuple())
+
+
+def allow_request(caller_token: str):
+    if not caller_token or caller_token != settings.CALLER_TOKEN:
+        logger.error(f"service=allow_request msg='request was made without token' ")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"You don't have access to this resource",
+        )
 
 
 generation_settings = GenerationService()

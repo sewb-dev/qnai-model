@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from typing import Optional, Union
 from pydantic import AnyHttpUrl, validator
 from pydantic_settings import BaseSettings
+from src.enums import Environment
 
 load_dotenv()
 
@@ -12,6 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent
 
 
 class Settings(BaseSettings):
+    ENVIRONMENT: str = os.getenv("APP_ENV") or Environment.DEVELOPMENT.value
     REDIS_HOST: str = os.getenv("REDIS_HOST")
     REDIS_PORT: str = os.getenv("REDIS_PORT")
     REDIS_USERNAME: str = os.getenv("REDIS_USERNAME")
