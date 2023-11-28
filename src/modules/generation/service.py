@@ -171,4 +171,4 @@ def allow_request(caller_token: str):
         )
 
 
-generation_settings = GenerationService()
+generation_service = GenerationService()
