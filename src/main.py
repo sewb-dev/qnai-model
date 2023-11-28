@@ -6,11 +6,12 @@ from src.settings import settings
 from src.enums import Environment
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security.api_key import APIKeyHeader
+from src.modules.generation import schemas
 
 setup_logger()
 
 
-app = FastAPI(title="qnai.sewb.dev Model API")
+app = FastAPI(title="QNAI Model API")
 header_scheme = APIKeyHeader(name="x-caller-token")
 
 
@@ -36,7 +37,7 @@ app.add_middleware(
 app.add_middleware(AddProcessTimeHeader)
 
 
-@app.post("/generate")
+@app.post("/generate", response_model=schemas.PostGenerateAPIResponse)
 async def create_generate(
     text: str,
     numOfQuestions: int,
@@ -52,7 +53,7 @@ async def create_generate(
     return {"generationId": generationId}
 
 
-@app.get("/generate/${id}")
+@app.get("/generate/${id}", response_model=schemas.GetGenerationAPIResponse)
 async def get_generation(
     id: str,
     caller_token: str = Depends(header_scheme),
