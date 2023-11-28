@@ -38,7 +38,7 @@ class GenerationService:
 
     """
 
-    def generation_id(self):
+    def get_generation_id(self):
         return uuid.uuid4()
 
     async def generate(self, text: str, numberOfQuestions, generationId: str):
@@ -119,14 +119,14 @@ class GenerationService:
         finally:
             await cache.expireat(
                 key,
-                self.__get_session_expiry(settings.DELETE_GENERATION_AFTER_DAYS),
+                self.__get_generation_expiry(settings.DELETE_GENERATION_AFTER_DAYS),
             )
 
             logger.info(
                 f"service=generate message='set cache expiry for generation request' extra='generation_id={generationId}'"
             )
 
-    async def generation_status(self, generationId: str):
+    async def get_generation(self, generationId: str):
         try:
             cache = await get_cache()
             data = await cache.json().get(
@@ -145,20 +145,15 @@ class GenerationService:
                 "error": None,
             }
             logger.error(
-                f"service=generation_status, msg='{e}' extra='generation_id={generationId}'"
+                f"service=get_generation, msg='{e}' extra='generation_id={generationId}'"
             )
             response["status"] = GenerationStatus.COMPLETE.value
             response["error"] = e
             return response
 
-    def __get_session_expiry(self, days: int) -> int:
+    def __get_generation_expiry(self, days=1) -> int:
         current_datetime = datetime.now()
-        if days < 1:
-            hours = round(days * 24, 1)
-            days = 0
-        else:
-            hours = 0
-        expiry_datetime = current_datetime + timedelta(days=days, hours=hours)
+        expiry_datetime = current_datetime + timedelta(days=days)
         return calendar.timegm(expiry_datetime.timetuple())
 
 

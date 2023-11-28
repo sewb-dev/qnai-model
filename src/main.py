@@ -14,11 +14,7 @@ app = FastAPI(title="QNAI Model API")
 header_scheme = APIKeyHeader(name="x-caller-token")
 
 
-origins = (
-    ["http://localhost:3000"]
-    if settings.ENVIRONMENT == Environment.DEVELOPMENT.value
-    else ["https://qnai.sewb.dev"]
-)
+origins = settings.BACKEND_CORS_ORIGINS
 
 
 @app.get("/")
@@ -35,7 +31,7 @@ app.add_middleware(
 )
 
 
-@app.post("/generate", response_model=schemas.PostGenerateAPIResponse)
+@app.post("/generations", response_model=schemas.PostGenerateAPIResponse)
 async def create_generate(
     text: str,
     numOfQuestions: int,
@@ -44,14 +40,14 @@ async def create_generate(
 ):
     allow_request(caller_token)
 
-    generationId = str(generation_service.generation_id())
+    generationId = str(generation_service.get_generation_id())
     background_tasks.add_task(
         generation_service.generate, text, numOfQuestions, generationId
     )
     return {"generationId": generationId}
 
 
-@app.get("/generate/${id}", response_model=schemas.GetGenerationAPIResponse)
+@app.get("/generations/${id}", response_model=schemas.GetGenerationAPIResponse)
 async def get_generation(
     id: str,
     caller_token: str = Depends(header_scheme),
