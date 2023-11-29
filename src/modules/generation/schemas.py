@@ -11,3 +11,8 @@ class GetGenerationAPIResponse(BaseModel):
     status: GenerationStatus
     content: Union[str, None]
     error: Union[str, None]
+
+
+class PostGenerateAPIRequest(BaseModel):
+    text: str
+    numOfQuestions: int = 10

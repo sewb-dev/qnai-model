@@ -32,8 +32,7 @@ app.add_middleware(
 
 @app.post("/generations", response_model=schemas.PostGenerateAPIResponse)
 async def create_generate(
-    text: str,
-    numOfQuestions: int,
+    body: schemas.PostGenerateAPIRequest,
     background_tasks: BackgroundTasks,
     caller_token: str = Depends(header_scheme),
 ):
@@ -41,7 +40,7 @@ async def create_generate(
 
     generationId = str(generation_service.get_generation_id())
     background_tasks.add_task(
-        generation_service.generate, text, numOfQuestions, generationId
+        generation_service.generate, body.text, body.numOfQuestions, generationId
     )
     return {"generationId": generationId}
 
