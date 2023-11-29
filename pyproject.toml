@@ -5,7 +5,6 @@ description = "Model for QNAI Project"
 authors = ["Temiloluwa Philip Ojo <codekagei@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "qnai_model"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
