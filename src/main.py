@@ -52,5 +52,5 @@ async def get_generation(
     caller_token: str = Depends(header_scheme),
 ):
     allow_request(caller_token)
-    response = await generation_service.generation_status(generationId=id)
+    response = await generation_service.get_generation(generationId=id)
     return response
