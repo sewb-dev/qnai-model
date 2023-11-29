@@ -42,7 +42,7 @@ class GenerationService:
         return uuid.uuid4()
 
     async def generate(self, text: str, numberOfQuestions, generationId: str):
-        key = f"{settings.GENERATION_JOB_PREFFIX_KEY}:{generationId}"
+        key = f"{settings.GENERATION_JOB_PREFIX_KEY}:{generationId}"
         global client
         if not client:
             client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
@@ -130,7 +130,7 @@ class GenerationService:
         try:
             cache = await get_cache()
             data = await cache.json().get(
-                f"{settings.GENERATION_JOB_PREFFIX_KEY}:{generationId}"
+                f"{settings.GENERATION_JOB_PREFIX_KEY}:{generationId}"
             )
 
             if data["status"] == GenerationStatus.INCOMPLETE.value:
