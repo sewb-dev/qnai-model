@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     REDIS_USERNAME: str = os.getenv("REDIS_USERNAME")
     REDIS_PASSWORD: str = os.getenv("REDIS_PASSWORD")
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY")
-    BACKEND_CORS_ORIGINS: list[AnyHttpUrl] = os.getenv("ORIGINS").split(",")
+    BACKEND_CORS_ORIGINS: list[AnyHttpUrl] = os.getenv("ORIGINS")
     GENERATION_JOB_PREFIX_KEY: str = "GJOB"
     DELETE_GENERATION_AFTER_DAYS: int = os.getenv("DELETE_GENERATION_AFTER_DAYS")
     CALLER_TOKEN: str = os.getenv("CALLER_TOKEN")

@@ -2,7 +2,6 @@ from src.logger import setup_logger
 from src.modules.generation.service import generation_service, allow_request
 from fastapi import BackgroundTasks, FastAPI, Depends
 from src.settings import settings
-from src.enums import Environment
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security.api_key import APIKeyHeader
 from src.modules.generation import schemas
@@ -47,7 +46,7 @@ async def create_generate(
     return {"generationId": generationId}
 
 
-@app.get("/generations/${id}", response_model=schemas.GetGenerationAPIResponse)
+@app.get("/generations/{id}", response_model=schemas.GetGenerationAPIResponse)
 async def get_generation(
     id: str,
     caller_token: str = Depends(header_scheme),
