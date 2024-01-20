@@ -55,6 +55,7 @@ class GenerationService:
             "content": content,
             "error": None,
             "prompt": self.prompt(text, numberOfQuestions),
+            "sourceText": text
         }
 
         try:
