@@ -11,6 +11,7 @@ class GetGenerationAPIResponse(BaseModel):
     status: GenerationStatus
     content: Union[str, None]
     error: Union[str, None]
+    sourceText: str
 
 
 class PostGenerateAPIRequest(BaseModel):
